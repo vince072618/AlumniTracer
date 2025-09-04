@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, Loader2, GraduationCap, Shield } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { LoginData, UserRole } from '../../types';
+import { LoginData } from '../../types';
+import ForgotPasswordForm from './ForgotPasswordForm';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
@@ -12,9 +13,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const [formData, setFormData] = useState<LoginData>({
     email: '',
     password: '',
-    expectedRole: 'alumni',
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errors, setErrors] = useState<Partial<LoginData>>({});
 
   const validateForm = (): boolean => {
@@ -49,8 +50,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
           errorMessage = 'Please check your email and confirm your account before signing in.';
         } else if (error.message.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. Please check your credentials.';
-        } else if (error.message.includes('role mismatch')) {
-          errorMessage = `This account is not registered as ${formData.expectedRole === 'admin' ? 'an administrator' : 'an alumni'}. Please select the correct account type.`;
         } else {
           errorMessage = error.message;
         }
@@ -68,68 +67,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
     }
   };
 
+  if (showForgotPassword) {
+    return (
+      <ForgotPasswordForm 
+        onBackToLogin={() => setShowForgotPassword(false)}
+      />
+    );
+  }
+
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8">
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-white font-bold text-xl">N</span>
+          <GraduationCap className="text-white" size={24} />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
         <p className="text-gray-600">Sign in to access your alumni portal</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Account Type
-          </label>
-          <div className="grid grid-cols-2 gap-4">
-            <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-              formData.expectedRole === 'alumni' 
-                ? 'border-blue-500 bg-blue-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}>
-              <input
-                type="radio"
-                name="expectedRole"
-                value="alumni"
-                checked={formData.expectedRole === 'alumni'}
-                onChange={(e) => setFormData(prev => ({ ...prev, expectedRole: e.target.value as UserRole }))}
-                className="sr-only"
-              />
-              <div className="flex items-center">
-                <GraduationCap className="h-5 w-5 text-blue-600 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Alumni</p>
-                  <p className="text-sm text-gray-600">Graduate access</p>
-                </div>
-              </div>
-            </label>
-            
-            <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-              formData.expectedRole === 'admin' 
-                ? 'border-purple-500 bg-purple-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}>
-              <input
-                type="radio"
-                name="expectedRole"
-                value="admin"
-                checked={formData.expectedRole === 'admin'}
-                onChange={(e) => setFormData(prev => ({ ...prev, expectedRole: e.target.value as UserRole }))}
-                className="sr-only"
-              />
-              <div className="flex items-center">
-                <Shield className="h-5 w-5 text-purple-600 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Administrator</p>
-                  <p className="text-sm text-gray-600">Admin access</p>
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
             Email Address
@@ -193,6 +149,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
             'Sign In'
           )}
         </button>
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => setShowForgotPassword(true)}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            Forgot your password?
+          </button>
+        </div>
       </form>
 
       <div className="mt-6 text-center">

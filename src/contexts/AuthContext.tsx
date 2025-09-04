@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email: supabaseUser.email || '',
         firstName: profile?.first_name || '',
         lastName: profile?.last_name || '',
-        role: profile?.role || 'alumni',
+        role: 'alumni',
         graduationYear: profile?.graduation_year || new Date().getFullYear(),
         course: profile?.course || '',
         currentJob: profile?.current_job || '',
@@ -120,31 +120,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw error;
       }
 
-      // If expectedRole is provided, verify the user's role matches
-      if (data.expectedRole) {
-        // Get the current session to access user data
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          // Get user profile to check role
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error('Error fetching user role:', profileError);
-            throw new Error('Unable to verify account type');
-          }
-
-          if (profile?.role !== data.expectedRole) {
-            // Sign out the user since they logged in with wrong role
-            await supabase.auth.signOut();
-            throw new Error(`Account role mismatch: expected ${data.expectedRole}, got ${profile?.role}`);
-          }
-        }
-      }
       // User state will be updated by the auth state change listener
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -176,7 +151,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             id: authData.user.id,
             first_name: data.firstName,
             last_name: data.lastName,
-            role: data.role,
+            role: 'alumni',
             graduation_year: data.graduationYear,
             course: data.course,
             phone_number: data.phoneNumber,

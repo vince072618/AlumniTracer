@@ -1,7 +1,7 @@
 {
   "name": "NBSC Alumni Portal",
   "short_name": "NBSC Alumni",
-  "description": "NBSC Alumni Profiling and Tracer System",
+  "description": "NBSC Alumni Portal - Profile Management System",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

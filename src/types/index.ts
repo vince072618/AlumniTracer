@@ -1,4 +1,4 @@
-export type UserRole = 'alumni' | 'admin';
+export type UserRole = 'alumni';
 
 export interface User {
   id: string;
@@ -25,7 +25,6 @@ export interface AuthState {
 export interface LoginData {
   email: string;
   password: string;
-  expectedRole?: UserRole;
 }
 
 export interface RegisterData {
@@ -40,11 +39,25 @@ export interface RegisterData {
   phoneNumber?: string;
 }
 
-export interface DashboardStats {
-  totalAlumni: number;
-  employed: number;
-  unemployed: number;
-  recentGraduates: number;
+export interface ProfileUpdateData {
+  firstName: string;
+  lastName: string;
+  graduationYear: number;
+  course: string;
+  currentJob?: string;
+  company?: string;
+  location?: string;
+  phoneNumber?: string;
+}
+
+export interface PasswordResetData {
+  email: string;
+}
+
+export interface PasswordUpdateData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 // Database types for Supabase

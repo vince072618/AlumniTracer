@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Mail, Lock, GraduationCap, Phone, Loader2, Shield } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, GraduationCap, Phone, Loader2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { RegisterData, UserRole } from '../../types';
+import { RegisterData } from '../../types';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -32,6 +32,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
     'Accounting',
     'Marketing',
     'Finance',
+    'Engineering',
+    'Nursing',
+    'Psychology',
+    'Criminal Justice',
   ];
 
   const validateForm = (): boolean => {
@@ -58,8 +62,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    if (formData.role === 'alumni' && !formData.course) {
-      newErrors.course = 'Course is required for alumni';
+    if (!formData.course) {
+      newErrors.course = 'Course is required';
     }
 
     setErrors(newErrors);
@@ -123,7 +127,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
     <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-white font-bold text-xl">N</span>
+          <GraduationCap className="text-white" size={24} />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Join NBSC Alumni</h2>
         <p className="text-gray-600">Create your alumni profile and stay connected</p>
@@ -253,61 +257,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           </div>
         </div>
 
-        <div>
-          <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-            Account Type *
-          </label>
-          <div className="grid grid-cols-2 gap-4">
-            <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-              formData.role === 'alumni' 
-                ? 'border-blue-500 bg-blue-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}>
-              <input
-                type="radio"
-                name="role"
-                value="alumni"
-                checked={formData.role === 'alumni'}
-                onChange={handleChange}
-                className="sr-only"
-              />
-              <div className="flex items-center">
-                <GraduationCap className="h-5 w-5 text-blue-600 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Alumni</p>
-                  <p className="text-sm text-gray-600">Graduate of NBSC</p>
-                </div>
-              </div>
-            </label>
-            
-            <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-              formData.role === 'admin' 
-                ? 'border-purple-500 bg-purple-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}>
-              <input
-                type="radio"
-                name="role"
-                value="admin"
-                checked={formData.role === 'admin'}
-                onChange={handleChange}
-                className="sr-only"
-              />
-              <div className="flex items-center">
-                <Shield className="h-5 w-5 text-purple-600 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Administrator</p>
-                  <p className="text-sm text-gray-600">System admin</p>
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className={formData.role === 'admin' ? 'opacity-50' : ''}>
+          <div>
             <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-2">
-              Course/Program {formData.role === 'alumni' ? '*' : '(Optional)'}
+              Course/Program *
             </label>
             <div className="relative">
               <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -316,14 +269,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
                 name="course"
                 value={formData.course}
                 onChange={handleChange}
-                disabled={formData.role === 'admin'}
                 className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                   errors.course ? 'border-red-500' : 'border-gray-300'
-                } ${formData.role === 'admin' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                }`}
               >
-                <option value="">
-                  {formData.role === 'admin' ? 'N/A for administrators' : 'Select your course'}
-                </option>
+                <option value="">Select your course</option>
                 {courses.map(course => (
                   <option key={course} value={course}>{course}</option>
                 ))}
@@ -332,9 +282,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
             {errors.course && <p className="mt-1 text-sm text-red-600">{errors.course}</p>}
           </div>
 
-          <div className={formData.role === 'admin' ? 'opacity-50' : ''}>
+          <div>
             <label htmlFor="graduationYear" className="block text-sm font-medium text-gray-700 mb-2">
-              Graduation Year {formData.role === 'admin' ? '(Optional)' : ''}
+              Graduation Year *
             </label>
             <input
               type="number"
@@ -342,12 +292,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
               name="graduationYear"
               value={formData.graduationYear}
               onChange={handleChange}
-              disabled={formData.role === 'admin'}
               min="1980"
               max="2030"
-              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                formData.role === 'admin' ? 'bg-gray-100 cursor-not-allowed' : ''
-              }`}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             />
           </div>
         </div>

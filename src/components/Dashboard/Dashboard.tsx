@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Header from '../Layout/Header';
 import Sidebar from '../Layout/Sidebar';
-import DashboardContent from './DashboardContent';
+import AlumniProfile from '../Profile/AlumniProfile';
 
 const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('profile');
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -15,7 +15,7 @@ const Dashboard: React.FC = () => {
         </div>
         <main className="flex-1 overflow-auto">
           <div className="p-6">
-            <DashboardContent activeTab={activeTab} />
+            <AlumniProfile />
           </div>
         </main>
       </div>
