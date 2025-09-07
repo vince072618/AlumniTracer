@@ -30,7 +30,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBackToLogin }
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
       if (error) {
@@ -56,11 +56,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBackToLogin }
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
           <p className="text-gray-600 mb-6">
             We've sent a password reset link to <strong>{email}</strong>. 
-            Please check your email and follow the instructions to reset your password.
+            Please check your email and click the link to reset your password.
           </p>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> The reset link will expire in 1 hour for security reasons.
+              <strong>Important:</strong> Check your spam folder if you don't see the email. The reset link will expire in 1 hour for security reasons.
             </p>
           </div>
           <button

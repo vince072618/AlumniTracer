@@ -2,6 +2,7 @@ import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthPage from './components/Auth/AuthPage';
 import AuthCallback from './components/Auth/AuthCallback';
+import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 import Dashboard from './components/Dashboard/Dashboard';
 
 const AppContent: React.FC = () => {
@@ -10,6 +11,11 @@ const AppContent: React.FC = () => {
   // Handle auth callback route
   if (window.location.pathname === '/auth/callback') {
     return <AuthCallback />;
+  }
+
+  // Handle password reset route
+  if (window.location.pathname === '/auth/reset-password') {
+    return <ResetPasswordForm />;
   }
 
   if (isLoading) {
