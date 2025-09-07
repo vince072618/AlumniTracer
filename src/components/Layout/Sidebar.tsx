@@ -9,7 +9,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   const menuItems = [
     { id: 'profile', label: 'My Profile', icon: User },
-    { id: 'settings', label: 'Account Settings', icon: Settings },
   ];
 
   return (

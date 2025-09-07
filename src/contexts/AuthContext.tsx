@@ -7,6 +7,7 @@ interface AuthContextType extends AuthState {
   login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error);
-        throw error;
+        // Don't throw error, just log it and continue with basic user data
       }
 
       const user: User = {
@@ -104,6 +105,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isLoading: false,
         isAuthenticated: false,
       });
+    }
+  };
+
+  const refreshUser = async (): Promise<void> => {
+    try {
+      const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+      if (supabaseUser) {
+        await handleAuthUser(supabaseUser);
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error);
     }
   };
 
@@ -197,6 +209,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    refreshUser,
   };
 
   return (

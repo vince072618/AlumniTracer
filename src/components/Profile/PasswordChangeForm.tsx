@@ -57,12 +57,6 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
     setIsLoading(true);
 
     try {
-      // First verify current password by attempting to sign in
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) {
-        throw new Error('User not found');
-      }
-
       // Update password
       const { error } = await supabase.auth.updateUser({
         password: formData.newPassword
@@ -81,14 +75,10 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
       let errorMessage = 'Failed to update password';
       
       if (error instanceof Error) {
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Current password is incorrect';
-        } else {
-          errorMessage = error.message;
-        }
+        errorMessage = error.message;
       }
       
-      setErrors({ currentPassword: errorMessage });
+      setErrors({ newPassword: errorMessage });
     } finally {
       setIsLoading(false);
     }

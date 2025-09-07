@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { Edit3, Save, X, User, GraduationCap, Briefcase, Building, MapPin, Phone, Mail, Calendar, Loader2 } from 'lucide-react';
+import { Edit3, Save, X, User, GraduationCap, Briefcase, Building, MapPin, Phone, Mail, Calendar, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ProfileUpdateData } from '../../types';
 import { supabase } from '../../lib/supabase';
-import PasswordChangeForm from './PasswordChangeForm';
 
 const AlumniProfile: React.FC = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [formData, setFormData] = useState<ProfileUpdateData>({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -70,6 +68,7 @@ const AlumniProfile: React.FC = () => {
         .eq('id', user?.id);
 
       if (error) {
+        console.error('Supabase update error:', error);
         throw error;
       }
 
@@ -79,11 +78,25 @@ const AlumniProfile: React.FC = () => {
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(''), 3000);
       
-      // Refresh the page to update the user context
-      window.location.reload();
+      // Refresh user data in context
+      if (refreshUser) {
+        await refreshUser();
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
-      setErrors({ firstName: 'Failed to update profile. Please try again.' });
+      let errorMessage = 'Failed to update profile. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('permission denied')) {
+          errorMessage = 'Permission denied. Please try logging out and back in.';
+        } else if (error.message.includes('JWT')) {
+          errorMessage = 'Session expired. Please refresh the page and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setErrors({ firstName: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -114,23 +127,6 @@ const AlumniProfile: React.FC = () => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
-
-  if (showPasswordChange) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Change Password</h2>
-          <button
-            onClick={() => setShowPasswordChange(false)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <PasswordChangeForm onSuccess={() => setShowPasswordChange(false)} />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -379,75 +375,6 @@ const AlumniProfile: React.FC = () => {
             </div>
           </div>
 
-          {/* Account Security Section */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Account Security</h4>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Password</p>
-                  <p className="text-sm text-gray-600">Last updated: {new Date().toLocaleDateString()}</p>
-                </div>
-                <button
-                  onClick={() => setShowPasswordChange(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  Change Password
-                </button>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Email Verification</p>
-                  <p className="text-sm text-gray-600">
-                    {user?.isVerified ? 'Your email is verified' : 'Email not verified'}
-                  </p>
-                </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  user?.isVerified 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {user?.isVerified ? 'Verified' : 'Pending'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Statistics */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Profile Statistics</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-blue-600">Member Since</p>
-                <p className="text-lg font-bold text-blue-900">
-                  {user?.createdAt ? new Date(user.createdAt).getFullYear() : 'N/A'}
-                </p>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-green-600">Profile Completion</p>
-                <p className="text-lg font-bold text-green-900">
-                  {Math.round(
-                    (Object.values({
-                      firstName: user?.firstName,
-                      lastName: user?.lastName,
-                      course: user?.course,
-                      currentJob: user?.currentJob,
-                      company: user?.company,
-                      location: user?.location,
-                      phoneNumber: user?.phoneNumber,
-                    }).filter(Boolean).length / 7) * 100
-                  )}%
-                </p>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-sm font-medium text-purple-600">Years Since Graduation</p>
-                <p className="text-lg font-bold text-purple-900">
-                  {new Date().getFullYear() - (user?.graduationYear || new Date().getFullYear())}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
