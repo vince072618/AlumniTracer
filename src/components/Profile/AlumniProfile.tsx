@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit3, Save, X, User, GraduationCap, Briefcase, Building, MapPin, Phone, Mail, Calendar, Loader2, RefreshCw } from 'lucide-react';
+import { Edit3, Save, X, User, GraduationCap, Briefcase, Building, MapPin, Phone, Mail, Calendar, Loader2, Lock } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ProfileUpdateData } from '../../types';
 import { supabase } from '../../lib/supabase';
@@ -55,24 +55,9 @@ const AlumniProfile: React.FC = () => {
     setErrors({});
 
     try {
-      // First, check if user is authenticated
-      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !currentUser) {
-        throw new Error('Authentication required. Please log out and log back in.');
+      if (!user?.id) {
+        throw new Error('User not authenticated');
       }
-
-      console.log('Updating profile for user:', currentUser.id);
-      console.log('Update data:', {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        graduation_year: formData.graduationYear,
-        course: formData.course,
-        current_job: formData.currentJob || null,
-        company: formData.company || null,
-        location: formData.location || null,
-        phone_number: formData.phoneNumber || null,
-      });
 
       const { error } = await supabase
         .from('profiles')
@@ -87,20 +72,12 @@ const AlumniProfile: React.FC = () => {
           phone_number: formData.phoneNumber || null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', currentUser.id);
+        .eq('id', user.id);
 
       if (error) {
-        console.error('Supabase update error:', error);
-        console.error('Error details:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
         throw error;
       }
 
-      console.log('Profile updated successfully');
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully!');
       
@@ -112,21 +89,7 @@ const AlumniProfile: React.FC = () => {
         await refreshUser();
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      let errorMessage = 'Failed to update profile. Please try again.';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('permission denied') || error.message.includes('JWT')) {
-          errorMessage = 'Permission denied. Please try logging out and back in.';
-        } else if (error.message.includes('Authentication required')) {
-          errorMessage = error.message;
-        } else if (error.message.includes('row-level security')) {
-          errorMessage = 'Security policy violation. Please contact support.';
-        } else {
-          errorMessage = `Update failed: ${error.message}`;
-        }
-      }
-      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile. Please try again.';
       setErrors({ firstName: errorMessage });
     } finally {
       setIsLoading(false);
@@ -268,11 +231,11 @@ const AlumniProfile: React.FC = () => {
                     }`}
                     placeholder="Enter first name"
                   />
-                  {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
                 </div>
               ) : (
                 <p className="py-3 px-4 bg-gray-50 rounded-lg text-gray-900">{user?.firstName}</p>
               )}
+              {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
             </div>
 
             <div>
@@ -292,11 +255,11 @@ const AlumniProfile: React.FC = () => {
                     }`}
                     placeholder="Enter last name"
                   />
-                  {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
                 </div>
               ) : (
                 <p className="py-3 px-4 bg-gray-50 rounded-lg text-gray-900">{user?.lastName}</p>
               )}
+              {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
             </div>
 
             <div>
@@ -319,11 +282,11 @@ const AlumniProfile: React.FC = () => {
                       <option key={course} value={course}>{course}</option>
                     ))}
                   </select>
-                  {errors.course && <p className="mt-1 text-sm text-red-600">{errors.course}</p>}
                 </div>
               ) : (
                 <p className="py-3 px-4 bg-gray-50 rounded-lg text-gray-900">{user?.course || 'Not specified'}</p>
               )}
+              {errors.course && <p className="mt-1 text-sm text-red-600">{errors.course}</p>}
             </div>
 
             <div>

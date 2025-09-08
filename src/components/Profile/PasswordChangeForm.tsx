@@ -57,13 +57,6 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
     setIsLoading(true);
 
     try {
-      // Verify current session first
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        throw new Error('Authentication required. Please log out and log back in.');
-      }
-
       // Update password
       const { error } = await supabase.auth.updateUser({
         password: formData.newPassword
@@ -78,18 +71,8 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
         onSuccess();
       }, 2000);
     } catch (error) {
-      console.error('Password update error:', error);
-      let errorMessage = 'Failed to update password';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('Authentication required')) {
-          errorMessage = error.message;
-        } else {
-        errorMessage = error.message;
-        }
-      }
-      
-      setErrors({ newPassword: errorMessage });
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update password';
+      setErrors({ currentPassword: errorMessage });
     } finally {
       setIsLoading(false);
     }

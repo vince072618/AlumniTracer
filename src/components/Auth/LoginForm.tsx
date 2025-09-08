@@ -171,14 +171,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
             Sign up here
           </button>
         </p>
-        
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs text-gray-600 mb-2">Important:</p>
-          <div className="text-xs space-y-1">
-            <p><strong>New users:</strong> You must confirm your email before signing in</p>
-            <p><strong>Check spam:</strong> Confirmation emails may go to spam folder</p>
-          </div>
-        </div>
       </div>
     </div>
   );

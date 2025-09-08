@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Settings, GraduationCap } from 'lucide-react';
+import { User, GraduationCap } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;

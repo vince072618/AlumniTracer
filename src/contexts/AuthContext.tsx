@@ -73,7 +73,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error);
         // Don't throw error, just log it and continue with basic user data
       }
 
@@ -99,7 +98,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAuthenticated: true,
       });
     } catch (error) {
-      console.error('Error handling auth user:', error);
       setAuthState({
         user: null,
         isLoading: false,
@@ -115,7 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await handleAuthUser(supabaseUser);
       }
     } catch (error) {
-      console.error('Error refreshing user:', error);
+      // Silently handle refresh errors
     }
   };
 

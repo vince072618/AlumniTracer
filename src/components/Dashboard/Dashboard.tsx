@@ -6,6 +6,15 @@ import AlumniProfile from '../Profile/AlumniProfile';
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'profile':
+        return <AlumniProfile />;
+      default:
+        return <AlumniProfile />;
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Header />
@@ -15,7 +24,7 @@ const Dashboard: React.FC = () => {
         </div>
         <main className="flex-1 overflow-auto">
           <div className="p-6">
-            <AlumniProfile />
+            {renderContent()}
           </div>
         </main>
       </div>
