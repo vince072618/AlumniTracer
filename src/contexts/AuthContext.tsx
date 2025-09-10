@@ -72,8 +72,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', supabaseUser.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        // Don't throw error, just log it and continue with basic user data
+      // If profile doesn't exist, create a basic one
+      if (error && error.code === 'PGRST116') {
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: supabaseUser.id,
+            first_name: '',
+            last_name: '',
+            role: 'alumni',
+            graduation_year: new Date().getFullYear(),
+            course: '',
+            created_at: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+        }
       }
 
       const user: User = {

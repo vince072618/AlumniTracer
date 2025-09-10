@@ -71,8 +71,9 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
         onSuccess();
       }, 2000);
     } catch (error) {
+      console.error('Password update error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to update password';
-      setErrors({ currentPassword: errorMessage });
+      setErrors({ newPassword: errorMessage });
     } finally {
       setIsLoading(false);
     }

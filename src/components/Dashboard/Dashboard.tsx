@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from '../Layout/Header';
 import Sidebar from '../Layout/Sidebar';
 import AlumniProfile from '../Profile/AlumniProfile';
+import PasswordChangeForm from '../Profile/PasswordChangeForm';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -10,6 +11,13 @@ const Dashboard: React.FC = () => {
     switch (activeTab) {
       case 'profile':
         return <AlumniProfile />;
+      case 'password':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Change Password</h2>
+            <PasswordChangeForm onSuccess={() => setActiveTab('profile')} />
+          </div>
+        );
       default:
         return <AlumniProfile />;
     }

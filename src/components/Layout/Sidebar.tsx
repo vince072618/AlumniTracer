@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, GraduationCap } from 'lucide-react';
+import { User, GraduationCap, Lock } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -9,6 +9,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   const menuItems = [
     { id: 'profile', label: 'My Profile', icon: User },
+    { id: 'password', label: 'Change Password', icon: Lock },
   ];
 
   return (

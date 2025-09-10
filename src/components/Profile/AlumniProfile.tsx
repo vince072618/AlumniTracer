@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit3, Save, X, User, GraduationCap, Briefcase, Building, MapPin, Phone, Mail, Calendar, Loader2, Lock } from 'lucide-react';
+import { Edit3, Save, X, User, GraduationCap, Briefcase, Building, MapPin, Phone, Mail, Calendar, Loader2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ProfileUpdateData } from '../../types';
 import { supabase } from '../../lib/supabase';
@@ -8,7 +8,6 @@ import PasswordChangeForm from './PasswordChangeForm';
 const AlumniProfile: React.FC = () => {
   const { user, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<ProfileUpdateData>({
     firstName: user?.firstName || '',
@@ -59,6 +58,38 @@ const AlumniProfile: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
+      // First check if profile exists
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code === 'PGRST116') {
+        // Profile doesn't exist, create it
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            graduation_year: formData.graduationYear,
+            course: formData.course,
+            current_job: formData.currentJob || null,
+            company: formData.company || null,
+            location: formData.location || null,
+            phone_number: formData.phoneNumber || null,
+            role: 'alumni',
+            created_at: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          throw insertError;
+        }
+      } else if (fetchError) {
+        throw fetchError;
+      } else {
+        // Profile exists, update it
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -77,6 +108,7 @@ const AlumniProfile: React.FC = () => {
       if (error) {
         throw error;
       }
+      }
 
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully!');
@@ -89,6 +121,7 @@ const AlumniProfile: React.FC = () => {
         await refreshUser();
       }
     } catch (error) {
+      console.error('Profile update error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to update profile. Please try again.';
       setErrors({ firstName: errorMessage });
     } finally {
@@ -122,24 +155,6 @@ const AlumniProfile: React.FC = () => {
     }
   };
 
-  if (showPasswordForm) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Change Password</h2>
-          <button
-            onClick={() => setShowPasswordForm(false)}
-            className="inline-flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-          >
-            <X size={16} className="mr-2" />
-            Back to Profile
-          </button>
-        </div>
-        <PasswordChangeForm onSuccess={() => setShowPasswordForm(false)} />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -149,14 +164,6 @@ const AlumniProfile: React.FC = () => {
             <span className="text-green-600 text-sm font-medium">{successMessage}</span>
           )}
           {!isEditing ? (
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setShowPasswordForm(true)}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <Lock size={16} className="mr-2" />
-                Change Password
-              </button>
               <button
                 onClick={() => setIsEditing(true)}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -164,7 +171,6 @@ const AlumniProfile: React.FC = () => {
                 <Edit3 size={16} className="mr-2" />
                 Edit Profile
               </button>
-            </div>
           ) : (
             <div className="flex space-x-2">
               <button
