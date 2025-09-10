@@ -58,6 +58,9 @@ const AlumniProfile: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
+      console.log('Attempting to update profile for user:', user.id);
+      console.log('Form data:', formData);
+
       // First check if profile exists
       const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
@@ -65,8 +68,11 @@ const AlumniProfile: React.FC = () => {
         .eq('id', user.id)
         .single();
 
+      console.log('Existing profile check:', { existingProfile, fetchError });
+
       if (fetchError && fetchError.code === 'PGRST116') {
         // Profile doesn't exist, create it
+        console.log('Creating new profile...');
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
@@ -80,16 +86,19 @@ const AlumniProfile: React.FC = () => {
             location: formData.location || null,
             phone_number: formData.phoneNumber || null,
             role: 'alumni',
-            created_at: new Date().toISOString(),
           });
 
         if (insertError) {
+          console.error('Insert error:', insertError);
           throw insertError;
         }
+        console.log('Profile created successfully');
       } else if (fetchError) {
+        console.error('Fetch error:', fetchError);
         throw fetchError;
       } else {
         // Profile exists, update it
+        console.log('Updating existing profile...');
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -101,13 +110,14 @@ const AlumniProfile: React.FC = () => {
           company: formData.company || null,
           location: formData.location || null,
           phone_number: formData.phoneNumber || null,
-          updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 
       if (error) {
+        console.error('Update error:', error);
         throw error;
       }
+      console.log('Profile updated successfully');
       }
 
       setIsEditing(false);
@@ -122,7 +132,21 @@ const AlumniProfile: React.FC = () => {
       }
     } catch (error) {
       console.error('Profile update error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile. Please try again.';
+      let errorMessage = 'Failed to update profile. Please try again.';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Handle specific Supabase errors
+        if (error.message.includes('JWT')) {
+          errorMessage = 'Session expired. Please refresh the page and try again.';
+        } else if (error.message.includes('permission')) {
+          errorMessage = 'Permission denied. Please refresh the page and try again.';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
+      }
+      
       setErrors({ firstName: errorMessage });
     } finally {
       setIsLoading(false);

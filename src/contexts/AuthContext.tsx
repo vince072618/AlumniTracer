@@ -65,6 +65,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const handleAuthUser = async (supabaseUser: SupabaseUser) => {
     try {
+      console.log('Handling auth user:', supabaseUser.id);
+      
       // Get user profile from profiles table
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -72,8 +74,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .eq('id', supabaseUser.id)
         .single();
 
+      console.log('Profile fetch result:', { profile, error });
+
       // If profile doesn't exist, create a basic one
       if (error && error.code === 'PGRST116') {
+        console.log('Profile not found, creating new profile...');
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
@@ -83,11 +88,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             role: 'alumni',
             graduation_year: new Date().getFullYear(),
             course: '',
-            created_at: new Date().toISOString(),
           });
 
         if (insertError) {
           console.error('Error creating profile:', insertError);
+        } else {
+          console.log('Profile created successfully');
         }
       }
 
@@ -107,12 +113,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         createdAt: new Date(supabaseUser.created_at),
       };
 
+      console.log('Setting user state:', user);
+
       setAuthState({
         user,
         isLoading: false,
         isAuthenticated: true,
       });
     } catch (error) {
+      console.error('Error in handleAuthUser:', error);
       setAuthState({
         user: null,
         isLoading: false,
