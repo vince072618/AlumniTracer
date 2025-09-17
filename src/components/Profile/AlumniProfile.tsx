@@ -23,16 +23,12 @@ const AlumniProfile: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
 
   const courses = [
-    'Teachers Education',
+    'Teacher Education',
     'Information Technology',
     'Business Administration',
     'Accounting',
     'Marketing',
     'Finance',
-    'Engineering',
-    'Nursing',
-    'Psychology',
-    'Criminal Justice',
   ];
 
   const validateForm = (): boolean => {

@@ -32,10 +32,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
     'Accounting',
     'Marketing',
     'Finance',
-    'Engineering',
-    'Nursing',
-    'Psychology',
-    'Criminal Justice',
   ];
 
   const validateForm = (): boolean => {
