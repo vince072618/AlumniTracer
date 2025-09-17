@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from '../Layout/Header';
 import Sidebar from '../Layout/Sidebar';
 import AlumniProfile from '../Profile/AlumniProfile';
+import ActivityLogs from '../Profile/ActivityLogs';
 import PasswordChangeForm from '../Profile/PasswordChangeForm';
 
 const Dashboard: React.FC = () => {
@@ -11,6 +12,13 @@ const Dashboard: React.FC = () => {
     switch (activeTab) {
       case 'profile':
         return <AlumniProfile />;
+      case 'activity':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Activity Logs</h2>
+            <ActivityLogs />
+          </div>
+        );
       case 'password':
         return (
           <div className="space-y-6">

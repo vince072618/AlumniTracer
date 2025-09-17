@@ -60,6 +60,26 @@ export interface PasswordUpdateData {
   confirmPassword: string;
 }
 
+// Activity Log types
+export type ActivityType = 
+  | 'login'
+  | 'logout'
+  | 'profile_update'
+  | 'password_change'
+  | 'registration'
+  | 'email_verification';
+
+export interface ActivityLog {
+  id: string;
+  userId: string;
+  activityType: ActivityType;
+  description: string;
+  metadata: Record<string, any>;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: Date;
+}
+
 // Database types for Supabase
 export interface Profile {
   id: string;

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { ActivityLogger } from '../../lib/activityLogger';
 
 const AuthCallback: React.FC = () => {
   const { isLoading } = useAuth();
@@ -19,6 +20,9 @@ const AuthCallback: React.FC = () => {
 
         if (data.session) {
           // User is now authenticated, redirect to dashboard
+          setTimeout(() => {
+            ActivityLogger.logEmailVerification();
+          }, 1000);
           window.location.href = '/';
         } else {
           // No session, redirect to login

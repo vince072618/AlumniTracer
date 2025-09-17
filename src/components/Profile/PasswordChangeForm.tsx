@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { PasswordUpdateData } from '../../types';
+import { ActivityLogger } from '../../lib/activityLogger';
 
 interface PasswordChangeFormProps {
   onSuccess: () => void;
@@ -65,6 +66,9 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
       if (error) {
         throw error;
       }
+
+      // Log password change
+      await ActivityLogger.logPasswordChange();
 
       setIsSuccess(true);
       setTimeout(() => {

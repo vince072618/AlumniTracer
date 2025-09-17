@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase } from '../lib/supabase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { User, AuthState, LoginData, RegisterData } from '../types';
+import { ActivityLogger } from '../lib/activityLogger';
 
 interface AuthContextType extends AuthState {
   login: (data: LoginData) => Promise<void>;
@@ -154,6 +155,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw error;
       }
 
+      // Log successful login
+      setTimeout(() => {
+        ActivityLogger.logLogin();
+      }, 1000);
+
       // User state will be updated by the auth state change listener
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -198,6 +204,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
 
+      // Log successful registration
+      if (authData.user) {
+        setTimeout(() => {
+          ActivityLogger.logRegistration();
+        }, 1000);
+      }
+
       // Always set loading to false after registration
       setAuthState(prev => ({ ...prev, isLoading: false }));
       
@@ -215,6 +228,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    // Log logout before signing out
+    ActivityLogger.logLogout();
+    
     supabase.auth.signOut().then(() => {
       setAuthState({
         user: null,
